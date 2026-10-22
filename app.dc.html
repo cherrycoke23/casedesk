@@ -121,9 +121,12 @@ input::placeholder{color:inherit;opacity:0.55}
       <section style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px">
         <span style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:600;color:var(--accInk)">4</span>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;letter-spacing:0">Paste the Application (client) ID</h3>
-          <p style="margin:0;line-height:1.5">It's on the app's <b>Overview</b> page. Saved on this device only, so paste it once on the iPad and once on your PC.</p>
+          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;letter-spacing:0">Paste the two IDs</h3>
+          <p style="margin:0;line-height:1.5">Both are on the app's <b>Overview</b> page. They're saved on this device only, so paste them once on the iPad and once on your PC.</p>
+          <span style="font-size:13px;color:var(--muted)">Application (client) ID</span>
           <input value="{{ clientId }}" onChange="{{ onClientId }}" placeholder="00000000-0000-0000-0000-000000000000" style="font-family:ui-monospace,Consolas,monospace;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);max-width:420px">
+          <span style="font-size:13px;color:var(--muted)">Directory (tenant) ID</span>
+          <input value="{{ tenantId }}" onChange="{{ onTenantId }}" placeholder="00000000-0000-0000-0000-000000000000" style="font-family:ui-monospace,Consolas,monospace;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);max-width:420px">
         </div>
       </section>
 
@@ -375,7 +378,7 @@ const chip = (hue, dark) => true
 class Component extends DCLogic {
   state = { caseId: 'all', sel: null, src: 'all', q: '', dark: null, done: { t3: true }, toast: null,
     data: null, view: 'queue', status: 'idle', error: null, warnings: [], secure: false, offline: false, redirect: '',
-    clientId: localStorage.getItem('casedesk.clientId') || '', kw: localStorage.getItem('casedesk.keywords') || '' };
+    clientId: localStorage.getItem('casedesk.clientId') || '', tenantId: localStorage.getItem('casedesk.tenantId') || '', kw: localStorage.getItem('casedesk.keywords') || '' };
 
   gm() { return this._gm ? Promise.resolve(this._gm) : import(new URL('graph.js', location.href).href).then((m) => (this._gm = m)); }
   readCache() {
@@ -403,6 +406,7 @@ class Component extends DCLogic {
   connect() {
     const id = this.state.clientId.trim();
     if (!id) { this.setState({ view: 'setup', error: 'Paste your Application (client) ID in step 4 first.' }); return; }
+    if (!this.state.tenantId.trim()) { this.setState({ view: 'setup', error: 'Paste your Directory (tenant) ID in step 4 first.' }); return; }
     if (!this._gm) { this.setState({ error: 'Connector still loading — try again in a second.' }); return; }
     if (!this._gm.canSignIn()) { this.setState({ view: 'setup', error: 'Sign-in only works from your web address: https://cherrycoke23.github.io/casedesk/' }); return; }
     if (navigator.onLine === false) { this.flash('You\'re offline. Connect to the internet to sign in.'); return; }
@@ -551,6 +555,7 @@ class Component extends DCLogic {
       isQueueView: this.state.view === 'queue', isSetup: this.state.view === 'setup',
       openSetup: () => this.setState({ view: 'setup' }), closeSetup: () => this.setState({ view: 'queue', error: null }),
       connect: () => this.connect(), refresh: () => this.refresh(), disconnect: () => this.disconnect(),
+      tenantId: this.state.tenantId, onTenantId: (e) => { localStorage.setItem('casedesk.tenantId', e.target.value.trim()); this.setState({ tenantId: e.target.value }); },
       clientId: this.state.clientId, onClientId: (e) => { localStorage.setItem('casedesk.clientId', e.target.value.trim()); this.setState({ clientId: e.target.value }); },
       kw: this.state.kw, onKw: (e) => { localStorage.setItem('casedesk.keywords', e.target.value); this.setState({ kw: e.target.value }); },
       redirect: this.state.redirect || 'https://cherrycoke23.github.io/casedesk/auth.html',

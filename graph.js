@@ -1,5 +1,6 @@
 // Case Desk — Microsoft 365 connection (read-only). Sign-in uses OAuth 2.0 auth-code + PKCE in a popup.
-const AUTH = 'https://login.microsoftonline.com/organizations/oauth2/v2.0';
+const tenant = () => (localStorage.getItem('casedesk.tenantId') || '').trim() || 'organizations';
+const authBase = () => `https://login.microsoftonline.com/${tenant()}/oauth2/v2.0`;
 const GRAPH = 'https://graph.microsoft.com/v1.0';
 export const SCOPES = ['User.Read', 'Mail.Read', 'Calendars.Read', 'Tasks.Read', 'Notes.Read', 'offline_access'];
 const SCOPE_STR = ['openid', 'profile', ...SCOPES].join(' ');
@@ -19,7 +20,7 @@ export const signOut = () => save(null);
 
 async function tokenRequest(clientId, params) {
   const body = new URLSearchParams({ client_id: clientId, scope: SCOPE_STR, redirect_uri: redirectUri(), ...params });
-  const r = await fetch(`${AUTH}/token`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+  const r = await fetch(`${authBase()}/token`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
   const j = await r.json();
   if (!r.ok) throw new Error(j.error_description ? j.error_description.split('\r\n')[0] : `Sign-in failed (${r.status})`);
   save({ access_token: j.access_token, refresh_token: j.refresh_token || (load() || {}).refresh_token, exp: Date.now() + (j.expires_in - 120) * 1000 });
@@ -33,7 +34,7 @@ export function signIn(clientId) {
     const verifier = rand(48), state = rand(16);
     const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
     const q = new URLSearchParams({ client_id: clientId, response_type: 'code', redirect_uri: redirectUri(), scope: SCOPE_STR, state, code_challenge: challenge, code_challenge_method: 'S256', prompt: 'select_account' });
-    popup.location.href = `${AUTH}/authorize?${q}`;
+    popup.location.href = `${authBase()}/authorize?${q}`;
     const url = await new Promise((resolve, reject) => {
       const iv = setInterval(() => {
         if (popup.closed) { clearInterval(iv); reject(new Error('Sign-in window was closed.')); return; }
@@ -177,7 +178,7 @@ export async function beginSignIn(clientId) {
   localStorage.setItem(PKCE, JSON.stringify({ verifier, state }));
   localStorage.setItem('casedesk.return', location.href.split('#')[0].split('?')[0]);
   const q = new URLSearchParams({ client_id: clientId, response_type: 'code', redirect_uri: redirectUri(), scope: SCOPE_STR, state, code_challenge: challenge, code_challenge_method: 'S256', prompt: 'select_account' });
-  location.assign(`${AUTH}/authorize?${q}`);
+  location.assign(`${authBase()}/authorize?${q}`);
 }
 export const pendingCode = () => { const p = new URLSearchParams(location.search); return p.has('code') || p.has('error'); };
 export async function finishSignIn(clientId) {
