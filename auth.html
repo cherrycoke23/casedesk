@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Signing in…</title>
+<script>
+  // Redirect sign-in (iPad / hosted): hand the code back to the app page. Pop-up sign-in (PC launcher) is read by the opener instead.
+  if (localStorage.getItem('casedesk.pkce')) {
+    var back = localStorage.getItem('casedesk.return') || 'app.dc.html';
+    location.replace(back + location.search);
+  }
+</script>
+</head>
+<body style="margin:0;display:grid;place-items:center;height:100vh;font-family:-apple-system,Segoe UI,system-ui,sans-serif;background:#fefcf8;color:#2f2e2b">
+<p>Finishing sign-in…</p>
+</body>
+</html>

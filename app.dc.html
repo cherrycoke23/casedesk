@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Case Desk">
+<meta name="theme-color" content="#fefcf8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Case Desk</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="ds/styles.css">
+<script src="ds/_ds_bundle.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+html,body{margin:0;height:100%;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+a{color:#416180}
+a:hover{color:#2c455d}
+input::placeholder{color:inherit;opacity:0.55}
+@media print{body *{visibility:hidden}#digest,#digest *{visibility:visible}#digest{position:absolute;inset:0;overflow:visible;background:#fff}[data-noprint]{display:none!important}}
+</style>
+</helmet>
+<div style="--bg:{{ t.bg }};--panel:{{ t.panel }};--ink:{{ t.ink }};--muted:{{ t.muted }};--line:{{ t.line }};--hover:{{ t.hover }};--sel:{{ t.sel }};--acc:{{ t.acc }};--accInk:{{ t.accInk }};--red:{{ t.red }};--orange:{{ t.orange }};--color-text:{{ t.ink }};--color-accent:{{ t.acc }};--color-accent-600:{{ t.accInk }};--color-accent-700:{{ t.accInk }};--color-divider:{{ t.line }};height:100vh;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;display:flex;flex-direction:column">
+
+  <header style="flex:none;display:flex;align-items:center;gap:14px;padding:calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 20px) 10px calc(env(safe-area-inset-left) + 20px);border-bottom:1px solid var(--line);background:var(--bg)">
+    <div style="flex:none;display:flex;flex-direction:column">
+      <span style="font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:24px;line-height:1.15;letter-spacing:-0.01em;white-space:nowrap">Case Desk</span>
+      <span style="font-size:12.5px;color:var(--muted);white-space:nowrap">{{ todayLabel }}</span>
+    </div>
+    <div style="flex:1 1 120px;min-width:120px;max-width:560px;height:44px;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--panel);border:1px solid var(--line);border-radius:8px">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--muted);flex:none"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input type="search" value="{{ q }}" onChange="{{ onQ }}" enterkeyhint="search" placeholder="Search titles, cases, senders, statuses…" style="flex:1;min-width:0;border:0;outline:none;background:transparent;font:inherit;font-size:16px;color:var(--ink);-webkit-appearance:none">
+      <sc-if value="{{ hasQ }}"><button onClick="{{ clearQ }}" style="height:44px;border:0;background:transparent;color:var(--muted);cursor:pointer;font:inherit;font-size:14px;padding:0 4px">Clear</button></sc-if>
+    </div>
+    <sc-if value="{{ isLive }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none;display:flex;align-items:center;gap:10px">
+        <span style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);white-space:nowrap"><span style="width:8px;height:8px;border-radius:50%;background:{{ dotColor }}"></span>{{ loadedLabel }}</span>
+        <button onClick="{{ refresh }}" aria-label="Refresh" style="width:44px;height:44px;flex:none;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);cursor:pointer" style-active="background:var(--hover)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg></button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ notLive }}" hint-placeholder-val="{{ true }}">
+      <button class="btn btn-primary blueprint" onClick="{{ openSetup }}" style="flex:none;height:44px;font-size:15px;padding:0 14px;white-space:nowrap">Connect<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></button>
+    </sc-if>
+    <button onClick="{{ openDigest }}" aria-label="Morning digest" style="width:44px;height:44px;flex:none;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);cursor:pointer" style-active="background:var(--hover)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></button>
+    <button onClick="{{ toggleDark }}" aria-label="{{ darkLabel }}" style="width:44px;height:44px;flex:none;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);cursor:pointer" style-active="background:var(--hover)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></button>
+    <button onClick="{{ openSetup }}" aria-label="Settings" style="width:44px;height:44px;flex:none;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);cursor:pointer" style-active="background:var(--hover)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg></button>
+  </header>
+
+  <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><div style="padding:8px 20px;font-size:13px;background:var(--panel);border-bottom:1px solid var(--line)">{{ busyLabel }}</div></sc-if>
+  <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 20px;font-size:13px;background:{{ t.pRed }};color:{{ t.pRedInk }};border-bottom:1px solid var(--line)"><span>{{ error }}</span><button onClick="{{ clearError }}" style="border:0;background:transparent;color:inherit;cursor:pointer;font:inherit">Dismiss</button></div></sc-if>
+  <sc-if value="{{ hasWarnings }}" hint-placeholder-val="{{ false }}"><div style="padding:8px 20px;font-size:13px;background:{{ t.pOrange }};color:{{ t.pOrangeInk }};border-bottom:1px solid var(--line)">Some sources didn't load — {{ warningText }}</div></sc-if>
+  <sc-if value="{{ isSample }}" hint-placeholder-val="{{ true }}"><div style="padding:6px 20px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--line)">Showing sample data. Connect Microsoft 365 to see your own email, calendar, tasks and notes.</div></sc-if>
+
+  <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
+  <main data-screen-label="Setup" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;justify-content:center;align-items:flex-start;padding:32px calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 64px) calc(env(safe-area-inset-left) + 20px)">
+    <div style="width:min(760px,100%);display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:34px;letter-spacing:-0.015em">Connect to Microsoft 365</h1>
+          <span style="color:var(--muted);font-size:14px;text-wrap:pretty">Read-only. Case Desk reads your Outlook mail and calendar, Planner tasks and OneNote sections. It never changes anything.</span>
+        </div>
+        <button onClick="{{ closeSetup }}" style="font:inherit;font-size:12.5px;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer;white-space:nowrap" style-hover="background:var(--hover)">Back to dashboard</button>
+      </div>
+
+      <section style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px">
+        <span style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:600;color:var(--accInk)">1</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;letter-spacing:0">Put Case Desk online (one time, on your PC)</h3>
+          <ol style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;line-height:1.5">
+            <li>Create a free account at <a href="https://github.com/signup" target="_blank" rel="noopener">github.com</a> with the username <b>cherrycoke23</b>.</li>
+            <li>Click <b>+ → New repository</b>. Name it <b>casedesk</b>, choose <b>Public</b>, and click <b>Create repository</b>.</li>
+            <li>Click <b>uploading an existing file</b>. Drag in everything inside the <b>casedesk-ipad</b> folder, including the <b>ds</b> folder, then click <b>Commit changes</b>.</li>
+            <li>Open <b>Settings → Pages</b>. Under Branch choose <b>main</b> and <b>/ (root)</b>, then <b>Save</b>. About a minute later your app is live at:</li>
+          </ol>
+          <code style="font-family:ui-monospace,Consolas,monospace;font-size:13px;padding:6px 10px;background:var(--panel);border:1px solid var(--line);border-radius:5px;align-self:flex-start">https://cherrycoke23.github.io/casedesk/</code>
+          <p style="margin:0;line-height:1.5;text-wrap:pretty"><b>On the iPad:</b> open that address in Safari, tap <b>Share → Add to Home Screen</b>, and open Case Desk from the new icon. <b>On your PC:</b> open the same address in Edge.</p>
+          <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.5;text-wrap:pretty">GitHub stores only the app itself. Your email, calendar, tasks and notes are never uploaded; they load straight from Microsoft onto your device.</p>
+          <sc-if value="{{ secureOk }}"><span style="font-size:13px;padding:4px 10px;border-radius:5px;background:{{ t.pBlue }};color:{{ t.pBlueInk }};align-self:flex-start">✓ Opened from a secure address, so sign-in will work</span></sc-if>
+          <sc-if value="{{ secureBad }}"><span style="font-size:13px;padding:4px 10px;border-radius:5px;background:{{ t.pOrange }};color:{{ t.pOrangeInk }};align-self:flex-start">Not opened from your web address yet. Sign-in will work once you open it there.</span></sc-if>
+        </div>
+      </section>
+
+      <section style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px">
+        <span style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:600;color:var(--accInk)">2</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;letter-spacing:0">Register Case Desk with Microsoft</h3>
+          <ol style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;line-height:1.5">
+            <li>Go to <a href="https://entra.microsoft.com" target="_blank" rel="noopener">entra.microsoft.com</a> and sign in with your work account.</li>
+            <li>Open <b>Applications → App registrations → New registration</b>.</li>
+            <li>Name: <b>Case Desk</b>. Supported account types: <b>Accounts in this organizational directory only</b>.</li>
+            <li>Redirect URI: choose platform <b>Single-page application (SPA)</b> and paste this address:</li>
+          </ol>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <code style="font-family:ui-monospace,Consolas,monospace;font-size:13px;padding:6px 10px;background:var(--panel);border:1px solid var(--line);border-radius:5px">{{ redirect }}</code>
+            <button onClick="{{ copyRedirect }}" style="font:inherit;font-size:12.5px;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer;white-space:nowrap" style-hover="background:var(--hover)">Copy</button>
+          </div>
+          <p style="margin:0;line-height:1.5">Click <b>Register</b>.</p>
+          <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.5;text-wrap:pretty">If Microsoft says you don't have permission to register applications, send this page to your IT consultant. Steps 2–3 take them about five minutes, and they can send you the client ID.</p>
+        </div>
+      </section>
+
+      <section style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px">
+        <span style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:600;color:var(--accInk)">3</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;letter-spacing:0">Allow read-only access</h3>
+          <p style="margin:0;line-height:1.5">In the new app, open <b>API permissions → Add a permission → Microsoft Graph → Delegated permissions</b> and tick:</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <sc-for list="{{ scopes }}" as="sc" hint-placeholder-count="6"><code style="font-family:ui-monospace,Consolas,monospace;font-size:12.5px;padding:2px 8px;background:var(--panel);border:1px solid var(--line);border-radius:4px">{{ sc }}</code></sc-for>
+          </div>
+          <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.5;text-wrap:pretty">If the sign-in in step 5 says "Need admin approval", your IT consultant needs to click <b>Grant admin consent</b> on this same page.</p>
+        </div>
+      </section>
+
+      <section style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px">
+        <span style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:600;color:var(--accInk)">4</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;letter-spacing:0">Paste the Application (client) ID</h3>
+          <p style="margin:0;line-height:1.5">It's on the app's <b>Overview</b> page. Saved on this device only, so paste it once on the iPad and once on your PC.</p>
+          <input value="{{ clientId }}" onChange="{{ onClientId }}" placeholder="00000000-0000-0000-0000-000000000000" style="font-family:ui-monospace,Consolas,monospace;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);max-width:420px">
+        </div>
+      </section>
+
+      <section style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px">
+        <span style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:600;color:var(--accInk)">5</span>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;letter-spacing:0">Sign in</h3>
+          <p style="margin:0;line-height:1.5;text-wrap:pretty">You'll go to Microsoft's sign-in page and come straight back. Pick your work account and accept the read-only permissions. You'll stay signed in for about a day before being asked again.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary blueprint" onClick="{{ connect }}" style="padding:9px 16px;font-size:15px">{{ signInLabel }}<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></button>
+            <sc-if value="{{ isLive }}"><button class="btn btn-secondary" onClick="{{ disconnect }}" style="padding:9px 16px;font-size:15px;color:var(--ink)">Sign out and show sample data</button></sc-if>
+          </div>
+        </div>
+      </section>
+
+      <section style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px">
+        <span style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:600;color:var(--accInk)">6</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:20px;letter-spacing:0">How your items are sorted</h3>
+          <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;line-height:1.5">
+            <li><b>Cases</b>: each Planner plan is one case. A case number in the plan title (e.g. 24-CV-1182) is picked up automatically.</li>
+            <li><b>Matching</b>: emails and calendar entries join a case when the subject contains its case number or a party name.</li>
+            <li><b>Discovery</b>: calendar entries mentioning RFP, RFA, interrogatories or "responses due".</li>
+            <li><b>Deadlines</b>: all-day entries, or entries with due, deadline, statute, file, serve or cut-off.</li>
+            <li><b>Today's calendar</b>: everything else on today's calendar.</li>
+            <li><b>Case notes</b>: the OneNote section named after the case opens in the OneNote app. Outlook and Planner items open in their apps when installed, otherwise in the browser.</li>
+          </ul>
+          <p style="margin:6px 0 0;line-height:1.5">Extra matching words (optional), one case per line:</p>
+          <textarea value="{{ kw }}" onChange="{{ onKw }}" rows="4" placeholder="Smith v. Jones = Smith, Jones Trucking, 24-CV-1182" style="font-family:ui-monospace,Consolas,monospace;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);resize:vertical"></textarea>
+          <span style="font-size:12.5px;color:var(--muted)">The left side must match the Planner plan title. Tap Refresh after editing.</span>
+        </div>
+      </section>
+    </div>
+  </main>
+  </sc-if>
+
+  <sc-if value="{{ isQueueView }}" hint-placeholder-val="{{ true }}">
+  <main data-screen-label="iPad split view" style="flex:1;min-height:0;display:flex">
+    <section style="flex:1 1 0;min-width:0;display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;flex-direction:column;gap:10px;padding:14px 20px 12px calc(env(safe-area-inset-left) + 20px);border-bottom:1px solid var(--line)">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <select value="{{ caseId }}" onChange="{{ onCase }}" aria-label="Case" style="height:44px;flex:0 1 340px;min-width:0;padding:0 12px;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:19px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px">
+            <sc-for list="{{ caseSel }}" as="c" hint-placeholder-count="1"><option value="{{ c.id }}">{{ c.label }}</option></sc-for>
+          </select>
+          <div style="flex:1"></div>
+          <div style="display:flex;gap:6px;font-size:13px;white-space:nowrap">
+            <span style="padding:6px 10px;border-radius:6px;background:{{ t.pRed }};color:{{ t.pRedInk }}"><b style="font-weight:600">{{ stats.overdue }}</b> overdue</span>
+            <span style="padding:6px 10px;border-radius:6px;background:{{ t.pOrange }};color:{{ t.pOrangeInk }}"><b style="font-weight:600">{{ stats.soon }}</b> due in {{ urgentDays }} days</span>
+            <span style="padding:6px 10px;border-radius:6px;background:{{ t.pBlue }};color:{{ t.pBlueInk }}"><b style="font-weight:600">{{ stats.events }}</b> today</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none">
+          <sc-for list="{{ srcOpts }}" as="o" hint-placeholder-count="6">
+            <button onClick="{{ o.onClick }}" style="flex:none;height:44px;display:flex;align-items:center;gap:7px;padding:0 15px;font:inherit;font-size:14.5px;border:1px solid var(--line);border-radius:22px;cursor:pointer;white-space:nowrap;color:var(--ink);background:{{ o.bg }};font-weight:{{ o.fw }}" style-active="background:var(--hover)"><span>{{ o.label }}</span><span style="font-size:12.5px;color:var(--muted)">{{ o.count }}</span></button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column;gap:20px;padding:12px 12px calc(env(safe-area-inset-bottom) + 28px) calc(env(safe-area-inset-left) + 12px)">
+        <sc-if value="{{ hasQ }}"><div style="padding:0 8px;font-size:13.5px;color:var(--muted)">{{ resultLine }}</div></sc-if>
+        <sc-for list="{{ queueGroups }}" as="g" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column">
+            <div style="display:flex;align-items:baseline;gap:8px;padding:4px 10px 8px;border-bottom:1px solid var(--line)">
+              <h4 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:19px;letter-spacing:0">{{ g.label }}</h4>
+              <span style="font-size:13px;color:var(--muted)">{{ g.count }}</span>
+            </div>
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+              <div onClick="{{ it.onOpen }}" style="display:grid;grid-template-columns:80px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:62px;padding:6px 10px;border-bottom:1px solid var(--line);cursor:pointer;background:{{ it.selBg }};box-shadow:inset 3px 0 0 {{ it.selBar }}" style-active="background:var(--hover)">
+                <span style="font-size:13px;color:var(--muted);white-space:nowrap">{{ it.when }}</span>
+                <div style="display:flex;gap:6px;align-items:center;min-width:0">
+                  <sc-if value="{{ it.isTask }}">
+                    <button onClick="{{ it.onToggle }}" aria-label="Mark task complete" style="width:44px;height:44px;margin:-6px 0 -6px -12px;flex:none;padding:0;border:0;background:transparent;cursor:pointer;display:grid;place-items:center">
+                      <span style="width:20px;height:20px;box-sizing:border-box;border:1.5px solid var(--muted);border-radius:4px;background:{{ it.checkBg }};display:grid;place-items:center;color:#fff">
+                        <sc-if value="{{ it.done }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-10"></path></svg></sc-if>
+                      </span>
+                    </button>
+                  </sc-if>
+                  <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                    <span style="font-size:15px;font-weight:500;text-decoration:{{ it.deco }};opacity:{{ it.op }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.title }}</span>
+                    <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                      <span style="flex:0 1 auto;max-width:60%;font-size:12.5px;padding:1px 7px;border-radius:4px;background:{{ it.chipBg }};color:{{ it.chipFg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.caseName }}</span>
+                      <span style="flex:1 1 0;min-width:0;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.kindLabel }}</span>
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size:13px;white-space:nowrap;color:{{ it.relColor }};font-weight:{{ it.relWeight }}">{{ it.rel }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <sc-if value="{{ queueEmpty }}"><div style="padding:24px 10px;color:var(--muted)">{{ emptyMsg }}</div></sc-if>
+      </div>
+    </section>
+    <aside style="flex:0 0 clamp(320px, 34vw, 400px);min-width:0;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;border-left:1px solid var(--line);background:var(--panel);padding:28px calc(env(safe-area-inset-right) + 28px) calc(env(safe-area-inset-bottom) + 28px) 28px">
+      <sc-if value="{{ pane }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px">
+            <span style="max-width:100%;font-size:13px;padding:2px 8px;border-radius:4px;background:{{ pane.chipBg }};color:{{ pane.chipFg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box">{{ pane.caseName }}</span>
+            <span style="font-size:13px;color:var(--muted);line-height:1.4">{{ pane.kindLabel }}</span>
+          </div>
+          <h2 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:28px;line-height:1.2;letter-spacing:-0.01em;text-wrap:pretty">{{ pane.title }}</h2>
+          <div style="display:flex;flex-direction:column;border-top:1px solid var(--line)">
+            <sc-for list="{{ pane.rows }}" as="r" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14.5px">
+                <span style="color:var(--muted)">{{ r.k }}</span><span>{{ r.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+            <button class="btn btn-primary blueprint" onClick="{{ pane.onApp }}" style="height:50px;font-size:16px">Open in {{ pane.app }}<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></button>
+            <sc-if value="{{ pane.hasCase }}"><button class="btn btn-secondary" onClick="{{ pane.onNotes }}" style="height:50px;font-size:16px;color:var(--ink)">Case notes in OneNote</button></sc-if>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noPane }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted)">Tap an item to see its details.</span></sc-if>
+    </aside>
+  </main>
+  </sc-if>
+
+  <sc-if value="{{ digest }}" hint-placeholder-val="{{ false }}">
+    <div id="digest" style="position:fixed;inset:0;z-index:40;overflow:auto;background:color-mix(in srgb, #000 35%, transparent);display:flex;justify-content:center;padding:32px 16px">
+      <div style="width:min(760px,100%);background:#fff;color:#222;padding:48px 56px;display:flex;flex-direction:column;gap:20px;box-shadow:var(--shadow-lg);height:max-content">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#666">Morning digest</span>
+            <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:32px;letter-spacing:-0.015em">{{ todayLabel }}</h1>
+          </div>
+          <div data-noprint="1" style="display:flex;gap:8px">
+            <button class="btn btn-secondary" onClick="{{ closeDigest }}" style="color:#222">Close</button>
+            <button class="btn btn-primary" onClick="{{ printDigest }}">Print / Save PDF</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <h4 style="margin:0 0 6px;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:18px;letter-spacing:0">Today's calendar</h4>
+          <sc-for list="{{ digestEvents }}" as="e" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;padding:10px 0;border-top:1px solid #ddd;font-size:13.5px">
+              <span style="font-weight:600">{{ e.span }}</span>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-weight:500">{{ e.title }}</span>
+                <span style="font-size:12.5px;color:#555">{{ e.caseName }} · {{ e.caseNo }} · {{ e.where }}</span>
+              </div>
+            </div>
+          </sc-for>
+          <div style="border-top:1px solid #ddd"></div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:6px;font-size:13.5px;z-index:30;box-shadow:var(--shadow-md)">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1194,&quot;height&quot;:834},&quot;scheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;steel&quot;,&quot;forest&quot;,&quot;oxblood&quot;,&quot;navy&quot;,&quot;graphite&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;graphite&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;urgentDays&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:7,&quot;min&quot;:1,&quot;max&quot;:30,&quot;unit&quot;:&quot;days&quot;,&quot;tsType&quot;:&quot;number&quot;},&quot;showCompleted&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+let BASE = new Date(2026, 9, 21);
+const at = (off) => new Date(BASE.getFullYear(), BASE.getMonth(), BASE.getDate() + off);
+const fmtDate = (off) => off == null ? 'No due date' : at(off).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+const fmtTime = ([h, m]) => `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
+const relDays = (n) => n == null ? 'No due date' : n < 0 ? `${-n}d overdue` : n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : `In ${n} days`;
+const horizon = (n) => n == null ? 'later' : n < 0 ? 'overdue' : n === 0 ? 'today' : n <= 4 ? 'week' : n <= 30 ? 'month' : 'later';
+const GROUPS = [['overdue', 'Overdue'], ['today', 'Today'], ['mail', 'Flagged email'], ['week', 'Rest of this week'], ['month', 'Next 30 days'], ['later', 'Later'], ['done', 'Done today']];
+
+const CASES = [
+  { id: 'c1', name: 'Doe v. Alpha Corp.', no: '24-CV-1182', hue: 25 },
+  { id: 'c2', name: 'Roe v. Beta Logistics', no: '25-CV-0417', hue: 60 },
+  { id: 'c3', name: 'Estate of Smith v. Gamma Health', no: '23-CV-2290', hue: 95 },
+  { id: 'c4', name: 'Lee v. Delta Insurance', no: '25-CV-0903', hue: 150 },
+  { id: 'c5', name: 'Patel v. Epsilon Motors', no: '24-CV-1576', hue: 200 },
+  { id: 'c6', name: 'Garcia v. Zeta Properties', no: '26-CV-0118', hue: 250 },
+  { id: 'c7', name: 'Nguyen v. Eta Bank', no: '25-CV-1344', hue: 300 },
+  { id: 'c8', name: 'Brown v. Theta Retail', no: '26-CV-0251', hue: 345 },
+];
+const EVENTS = [
+  { id: 'e1', start: [9, 0], end: [9, 30], title: 'Status conference', c: 'c1', loc: 'Dept. 12 · Remote', kind: 'Hearing' },
+  { id: 'e2', start: [10, 30], end: [11, 30], title: 'Deposition prep — Witness A', c: 'c3', loc: 'Conference Room 2', kind: 'Meeting' },
+  { id: 'e3', start: [13, 30], end: [14, 0], title: 'Docket review with attorney', c: null, loc: 'Office', kind: 'Meeting' },
+  { id: 'e4', start: [15, 0], end: [15, 45], title: 'Mediation scheduling call', c: 'c5', loc: 'Teams', kind: 'Meeting' },
+  { id: 'e5', start: [16, 30], end: [17, 0], title: 'Client follow-up', c: 'c6', loc: 'Phone', kind: 'Call' },
+];
+const DEADLINES = [
+  { id: 'd1', off: -1, title: 'Serve amended initial disclosures', c: 'c2', type: 'Disclosure' },
+  { id: 'd2', off: 0, title: 'File joint case management statement', c: 'c1', type: 'Filing' },
+  { id: 'd3', off: 2, title: 'Expert witness designation', c: 'c3', type: 'Expert' },
+  { id: 'd4', off: 4, title: 'Reply ISO motion to compel', c: 'c7', type: 'Filing' },
+  { id: 'd5', off: 6, title: 'Statute of limitations — potential claim', c: 'c8', type: 'Statute' },
+  { id: 'd6', off: 12, title: 'Mediation brief due', c: 'c5', type: 'Filing' },
+  { id: 'd7', off: 19, title: 'Fact discovery cut-off', c: 'c3', type: 'Discovery' },
+  { id: 'd8', off: 40, title: 'Trial readiness conference', c: 'c1', type: 'Hearing' },
+];
+const TASKS = [
+  { id: 't8', off: -2, title: 'Confirm court reporter for deposition', c: 'c3', bucket: 'Depositions' },
+  { id: 't1', off: 0, title: 'Pull medical records index', c: 'c3', bucket: 'Records' },
+  { id: 't3', off: 0, title: 'Calendar new dates from minute order', c: 'c4', bucket: 'Calendar' },
+  { id: 't2', off: 1, title: 'Draft privilege log, Set 2', c: 'c1', bucket: 'Discovery' },
+  { id: 't4', off: 3, title: 'Prepare exhibit binder for deposition', c: 'c3', bucket: 'Depositions' },
+  { id: 't5', off: 5, title: 'Bates-stamp production vol. 4', c: 'c2', bucket: 'Discovery' },
+  { id: 't6', off: 9, title: 'Send records subpoena to custodian', c: 'c7', bucket: 'Records' },
+  { id: 't7', off: 14, title: 'Update case chronology', c: 'c6', bucket: 'Case file' },
+];
+const EMAILS = [
+  { id: 'm1', off: 0, time: '8:14 AM', from: 'Opposing counsel', title: 'Meet and confer re: RFP responses', c: 'c2' },
+  { id: 'm2', off: 0, time: '7:52 AM', from: 'Court clerk', title: 'Notice of rescheduled hearing', c: 'c4' },
+  { id: 'm3', off: -1, time: '4:40 PM', from: 'Supervising attorney', title: 'Need exhibit list by Thursday', c: 'c3' },
+  { id: 'm4', off: -1, time: '11:05 AM', from: 'Client', title: 'Signed verification attached', c: 'c6' },
+  { id: 'm5', off: -2, time: '2:18 PM', from: 'Records vendor', title: 'Records ready for download', c: 'c7' },
+  { id: 'm6', off: -3, time: '9:30 AM', from: 'Co-counsel', title: 'Draft stipulation for review', c: 'c1' },
+];
+const DISCOVERY = [
+  { id: 'x4', c: 'c4', set: 'Requests for Production, Set 1', dir: 'by', served: -34, due: -4, status: 'No response received' },
+  { id: 'x1', c: 'c1', set: 'Requests for Production, Set 2', dir: 'on', served: -28, due: 2, status: 'Drafting responses' },
+  { id: 'x6', c: 'c7', set: 'Special Interrogatories, Set 2', dir: 'on', served: -25, due: 5, status: 'With attorney for review' },
+  { id: 'x2', c: 'c2', set: 'Interrogatories, Set 1', dir: 'by', served: -24, due: 6, status: 'Awaiting responses' },
+  { id: 'x3', c: 'c3', set: 'Requests for Admission, Set 1', dir: 'on', served: -18, due: 12, status: 'Not started' },
+  { id: 'x5', c: 'c5', set: 'Requests for Production, Set 1', dir: 'by', served: -15, due: 15, status: 'Awaiting responses' },
+  { id: 'x7', c: 'c8', set: 'Form Interrogatories, Set 1', dir: 'by', served: -7, due: 23, status: 'Awaiting responses' },
+];
+const MOCK = { CASES, EVENTS, DEADLINES, TASKS, EMAILS, DISCOVERY };
+const SOURCES = [['all', 'Everything'], ['event', 'Calendar'], ['deadline', 'Deadlines'], ['task', 'Planner tasks'], ['email', 'Flagged email'], ['discovery', 'Discovery']];
+
+const SCHEMES = {
+  steel: { light: ['#fbfbfa', '#2f2e2b', '#5980a6', '#416180'], dark: ['#749dc4', '#94bce3'] },
+  forest: { light: ['#f7f8f5', '#26302a', '#4f7a5e', '#3a5c46'], dark: ['#7fae8c', '#a3cbae'] },
+  oxblood: { light: ['#faf8f5', '#2e2624', '#8a3b3b', '#722e2e'], dark: ['#c07a72', '#dba39c'] },
+  navy: { light: ['#f6f6f3', '#1f2638', '#8a6f35', '#6e5829'], dark: ['#c9a964', '#e0c78e'] },
+  graphite: { light: ['#f7f7f7', '#222222', '#555555', '#3d3d3d'], dark: ['#aaaaaa', '#cccccc'] },
+  plum: { light: ['#faf8fa', '#2c2530', '#7a5a8c', '#604670'], dark: ['#a98bbd', '#c6add6'] },
+};
+const theme = (dark, name) => {
+  const sc = SCHEMES[name] || SCHEMES.steel;
+  const t = { ...THEMES[dark ? 'dark' : 'light'] };
+  if (dark) { [t.acc, t.accInk] = sc.dark; } else { [, t.ink, t.acc, t.accInk] = sc.light; t.bg = '#fefcf8'; t.panel = '#f9f5ee'; }
+  const pp = (h) => dark ? [`oklch(0.34 0.05 ${h})`, `oklch(0.9 0.06 ${h})`] : [`oklch(0.94 0.04 ${h})`, `oklch(0.42 0.1 ${h})`];
+  [t.pRed, t.pRedInk] = pp(20); [t.pOrange, t.pOrangeInk] = pp(65); [t.pBlue, t.pBlueInk] = pp(240);
+  t.sel = `color-mix(in srgb, ${t.acc} ${dark ? 18 : 12}%, transparent)`;
+  return t;
+};
+const THEMES = {
+  light: { bg: '#fbfbfa', panel: '#f5f4f2', ink: '#2f2e2b', muted: '#75736d', line: 'rgba(47,46,43,0.09)', hover: 'rgba(47,46,43,0.05)', sel: 'rgba(89,128,166,0.12)', acc: '#5980a6', accInk: '#416180', red: 'oklch(0.55 0.17 28)', orange: 'oklch(0.58 0.14 58)' },
+  dark: { bg: '#1c1c1b', panel: '#242423', ink: '#e9e8e5', muted: '#9d9b96', line: 'rgba(255,255,255,0.09)', hover: 'rgba(255,255,255,0.05)', sel: 'rgba(116,157,196,0.18)', acc: '#749dc4', accInk: '#94bce3', red: 'oklch(0.74 0.14 28)', orange: 'oklch(0.8 0.12 65)' },
+};
+const GROUP_HUE = { overdue: 28, today: 58, mail: 245, week: 150, month: 300, later: null };
+const headColor = (key, dark) => GROUP_HUE[key] == null ? 'var(--muted)' : dark ? `oklch(0.8 0.12 ${GROUP_HUE[key]})` : `oklch(0.52 0.15 ${GROUP_HUE[key]})`;
+const sectionBg = (key, dark) => GROUP_HUE[key] == null ? 'var(--panel)' : dark ? `oklch(0.245 0.02 ${GROUP_HUE[key]})` : `oklch(0.978 0.014 ${GROUP_HUE[key]})`;
+const chip = (hue, dark) => true
+  ? { chipBg: dark ? 'rgba(255,255,255,0.08)' : 'rgba(47,46,43,0.07)', chipFg: dark ? '#d6d5d1' : '#55534e' }
+  : dark ? { chipBg: `oklch(0.36 0.06 ${hue})`, chipFg: `oklch(0.9 0.06 ${hue})` }
+         : { chipBg: `oklch(0.93 0.05 ${hue})`, chipFg: `oklch(0.42 0.11 ${hue})` };
+
+class Component extends DCLogic {
+  state = { caseId: 'all', sel: null, src: 'all', q: '', dark: null, done: { t3: true }, toast: null,
+    data: null, view: 'queue', status: 'idle', error: null, warnings: [], secure: false, offline: false, redirect: '',
+    clientId: localStorage.getItem('casedesk.clientId') || '', kw: localStorage.getItem('casedesk.keywords') || '' };
+
+  gm() { return this._gm ? Promise.resolve(this._gm) : import(new URL('graph.js', location.href).href).then((m) => (this._gm = m)); }
+  readCache() {
+    try {
+      const c = JSON.parse(localStorage.getItem('casedesk.cache') || 'null');
+      if (!c) return null;
+      c.base = new Date(c.base); c.loadedAt = new Date(c.loadedAt);
+      return c;
+    } catch (e) { return null; }
+  }
+  async componentDidMount() {
+    if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+    const cached = this.readCache();
+    if (cached) { BASE = cached.base; this.setState({ data: cached, status: 'live', offline: true, warnings: cached.warnings || [] }); }
+    let G;
+    try { G = await this.gm(); } catch (e) { this.setState({ error: 'Could not load the Microsoft 365 connector (graph.js).' }); return; }
+    this.setState({ secure: G.canSignIn(), redirect: G.redirectUri() });
+    if (G.pendingCode()) {
+      this.setState({ status: 'signing' });
+      try { await G.finishSignIn(this.state.clientId.trim()); }
+      catch (e) { this.setState({ status: cached ? 'live' : 'idle', error: e.message, view: 'setup' }); return; }
+    }
+    if (this.state.clientId && G.hasSession() && G.canSignIn() && navigator.onLine !== false) this.refresh();
+  }
+  connect() {
+    const id = this.state.clientId.trim();
+    if (!id) { this.setState({ view: 'setup', error: 'Paste your Application (client) ID in step 4 first.' }); return; }
+    if (!this._gm) { this.setState({ error: 'Connector still loading — try again in a second.' }); return; }
+    if (!this._gm.canSignIn()) { this.setState({ view: 'setup', error: 'Sign-in only works from your web address: https://cherrycoke23.github.io/casedesk/' }); return; }
+    if (navigator.onLine === false) { this.flash('You\'re offline. Connect to the internet to sign in.'); return; }
+    this.setState({ status: 'signing', error: null });
+    this._gm.beginSignIn(id).catch((e) => this.setState({ status: 'idle', error: e.message }));
+  }
+  async refresh() {
+    if (navigator.onLine === false) { this.flash(this.state.data ? 'You\'re offline. Showing your last loaded data.' : 'You\'re offline.'); return; }
+    const G = await this.gm();
+    this.setState({ status: 'loading', error: null });
+    try {
+      const d = await G.loadAll(this.state.clientId.trim(), this.state.kw);
+      BASE = d.base;
+      try { localStorage.setItem('casedesk.cache', JSON.stringify(d)); } catch (e) {}
+      this.setState({ data: d, status: 'live', offline: false, view: 'queue', warnings: d.warnings, sel: null, caseId: 'all' });
+    } catch (e) {
+      const had = !!this.state.data;
+      this.setState({ status: had ? 'live' : 'idle', error: had ? 'Couldn\'t refresh, so this is your last loaded data. (' + e.message + ')' : e.message });
+    }
+  }
+  async disconnect() {
+    const G = await this.gm(); G.signOut(); localStorage.removeItem('casedesk.cache'); BASE = new Date(2026, 9, 21);
+    this.setState({ data: null, status: 'idle', offline: false, warnings: [], sel: null, caseId: 'all' });
+  }
+
+  flash(msg) {
+    clearTimeout(this._t);
+    this.setState({ toast: msg });
+    this._t = setTimeout(() => this.setState({ toast: null }), 2200);
+  }
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  build(urgentDays, showCompleted, dark) {
+    const { done } = this.state;
+    const D = this.state.data || MOCK, live = !!this.state.data;
+    const cs = (id) => D.CASES.find((c) => c.id === id);
+    const due = (n) => n == null ? { days: 9999, rel: 'No due date', overdue: false, urgent: false, h: 'later' } : ({ days: n, rel: relDays(n), overdue: n < 0, urgent: n >= 0 && n <= urgentDays, h: horizon(n) });
+    const base = (o, kind) => {
+      const c = cs(o.c);
+      return { id: o.id, kind, title: o.title, caseId: o.c, caseName: c ? c.name : (live ? 'No case matched' : 'Internal'), url: o.url, notesUrl: c && c.notesUrl, caseNo: c ? c.no : '—', deco: 'none', op: 1, isTask: false, done: false, ...chip(c ? c.hue : null, dark) };
+    };
+    const items = [];
+    D.EVENTS.forEach((e) => { const b = base(e, 'event'); items.push({
+      ...b, kindLabel: `${e.kind} · ${e.loc}`, app: 'Outlook', when: fmtTime(e.start), days: 0, h: 'today', rel: `${e.kind === 'Hearing' ? 'Hearing' : ''}`, overdue: false, urgent: e.kind === 'Hearing', sort: e.start[0] * 60 + e.start[1],
+      rows: [['When', `Today, ${fmtTime(e.start)} – ${fmtTime(e.end)}`], ['Type', e.kind], ['Where', e.loc], ['Case no.', b.caseNo], ['Source', 'Outlook calendar']],
+    }); });
+    D.DEADLINES.forEach((d) => { const b = base(d, 'deadline'); items.push({
+      ...b, ...due(d.off), kindLabel: `${d.type} deadline`, app: 'Outlook', when: fmtDate(d.off), sort: d.off * 1440,
+      rows: [['Due', `${fmtDate(d.off)} · ${relDays(d.off)}`], ['Type', d.type], ['Case no.', b.caseNo], ['Source', 'Outlook calendar']],
+    }); });
+    D.TASKS.forEach((t) => {
+      const isDone = live ? !!t.done : !!done[t.id];
+      if (isDone && !showCompleted) return;
+      const b = base(t, 'task');
+      const dd = isDone ? { days: t.off, rel: 'Done', overdue: false, urgent: false, h: 'done' } : due(t.off);
+      items.push({
+        ...b, ...dd, kindLabel: `Planner · ${t.bucket}`, app: 'Planner', when: fmtDate(t.off), sort: (t.off ?? 9999) * 1440 + 1,
+        isTask: true, done: isDone, deco: isDone ? 'line-through' : 'none', op: isDone ? 0.5 : 1,
+        onToggle: (ev) => { ev.stopPropagation(); if (live) { this.flash('Read-only — complete this task in Planner.'); return; } this.setState((s) => ({ done: { ...s.done, [t.id]: !s.done[t.id] } })); },
+        rows: [['Due', t.off == null ? 'No due date' : `${fmtDate(t.off)} · ${relDays(t.off)}`], ['Bucket', t.bucket], ['Status', isDone ? 'Completed' : (t.status || 'Not started')], ['Case no.', b.caseNo], ['Source', 'Planner']],
+      });
+    });
+    D.EMAILS.forEach((m) => { const b = base(m, 'email'); items.push({
+      ...b, kindLabel: `Email from ${m.from}`, app: 'Outlook', when: m.off === 0 ? m.time : fmtDate(m.off),
+      days: m.off, h: 'mail', rel: 'Flagged', overdue: false, urgent: false, sort: m.off * 1440,
+      rows: [['From', m.from], ['Received', `${m.off === 0 ? 'Today' : fmtDate(m.off)}, ${m.time}`], ['Case no.', b.caseNo], ['Source', 'Outlook mail']],
+    }); });
+    D.DISCOVERY.forEach((x) => {
+      const b = base({ ...x, title: `Responses due — ${x.set}` }, 'discovery');
+      const dirLabel = x.dir === 'on' ? 'Served on us' : x.dir === 'by' ? 'Served by us' : 'From calendar';
+      items.push({
+        ...b, ...due(x.due), kindLabel: `Discovery · ${dirLabel.toLowerCase()} · ${x.status || 'Calendar entry'}`, app: 'Outlook', when: fmtDate(x.due), sort: x.due * 1440 + 2,
+        rows: [['Request set', x.set], ['Direction', dirLabel], ['Served', x.served == null ? '—' : fmtDate(x.served)], ['Response due', `${fmtDate(x.due)} · ${relDays(x.due)}`], ['Status', x.status || '—'], ['Case no.', b.caseNo]],
+      });
+    });
+    items.forEach((it) => {
+      it.search = [it.title, it.caseName, it.caseNo, it.kindLabel, it.when, ...it.rows.flat()].join(' ').toLowerCase();
+      it.rows = it.rows.map(([k, v]) => ({ k, v }));
+      it.relColor = it.overdue ? 'var(--red)' : it.urgent ? 'var(--orange)' : 'var(--muted)';
+      it.relWeight = it.overdue || it.urgent ? 600 : 400;
+      it.checkBg = it.done ? 'var(--acc)' : 'transparent';
+    });
+    items.sort((a, b) => a.sort - b.sort);
+    return items;
+  }
+
+  renderVals() {
+    const urgentDays = this.props.urgentDays ?? 7;
+    const showCompleted = this.props.showCompleted ?? true;
+    const dark = this.state.dark ?? this.props.dark ?? false;
+    const t = theme(dark, this.props.scheme ?? 'steel');
+    const { caseId, src, q } = this.state;
+    const D = this.state.data || MOCK, live = !!this.state.data, st = this.state.status;
+    const all = this.build(urgentDays, showCompleted, dark).map((it) => ({ ...it, onOpen: () => this.setState({ sel: it.id }) }));
+    const needle = q.trim().toLowerCase();
+    const byCase = caseId === 'all' ? all : all.filter((it) => it.caseId === caseId);
+    const searched = needle ? byCase.filter((it) => needle.split(/\s+/).every((w) => it.search.includes(w))) : byCase;
+    const list = src === 'all' ? searched : searched.filter((it) => it.kind === src);
+    const sel = list.find((it) => it.id === this.state.sel) || list[0] || null;
+    const open = all.filter((it) => !it.done && ['deadline', 'task', 'discovery'].includes(it.kind));
+    const curCase = D.CASES.find((c) => c.id === caseId);
+    const srcLabel = SOURCES.find(([k]) => k === src)[1];
+
+    const groups = GROUPS.map(([key, label]) => {
+      const g = list.filter((it) => it.h === key).map((it) => ({ ...it, selBg: sel && it.id === sel.id ? 'var(--sel)' : 'transparent', selBar: sel && it.id === sel.id ? 'var(--acc)' : 'transparent' }));
+      return { label, items: g, count: g.length, color: headColor(key, dark), bg: sectionBg(key, dark) };
+    }).filter((g) => g.items.length);
+
+    return {
+      t, todayLabel: BASE.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }), urgentDays,
+      darkLabel: dark ? 'Light mode' : 'Dark mode',
+      toggleDark: () => this.setState({ dark: !dark }),
+      q, hasQ: !!q,
+      onQ: (e) => this.setState({ q: e.target.value, sel: null }),
+      clearQ: () => this.setState({ q: '', sel: null }),
+      stats: { overdue: open.filter((it) => it.overdue).length, soon: open.filter((it) => it.urgent).length, events: all.filter((it) => it.kind === 'event').length },
+      srcOpts: SOURCES.map(([k, label]) => ({
+        label, count: k === 'all' ? searched.length : searched.filter((it) => it.kind === k).length,
+        bg: k === src ? 'var(--sel)' : 'transparent', fw: k === src ? 600 : 400,
+        onClick: () => this.setState({ src: k, sel: null }),
+      })),
+      caseOpts: [{ id: 'all', name: 'All cases', hue: null }, ...D.CASES].map((c) => ({
+        label: c.name, count: c.id === 'all' ? all.length : all.filter((it) => it.caseId === c.id).length,
+        ...chip(c.hue, dark), bg: c.id === caseId ? 'var(--sel)' : 'transparent',
+        onClick: () => this.setState({ caseId: c.id, sel: null }),
+      })),
+      heading: curCase ? curCase.name : srcLabel === 'Everything' ? 'Everything' : srcLabel,
+      subheading: needle ? `${list.length} result${list.length === 1 ? '' : 's'} for “${q.trim()}”` : curCase ? `${curCase.no} · ${srcLabel}` : 'All active cases, sorted by when they need you',
+      queueGroups: groups,
+      queueEmpty: list.length === 0,
+      emptyMsg: needle ? `No matches for “${q.trim()}”.` : 'Nothing here.',
+      pane: sel && { ...sel, hasCase: !!sel.caseId,
+        onApp: () => sel.url ? window.open(sel.url, '_blank', 'noopener') : this.flash(live ? 'No link available for this item.' : `Sample data — connect Microsoft 365 to open real items.`),
+        onNotes: () => sel.notesUrl ? (sel.notesUrl.startsWith('onenote:') ? (window.location.href = sel.notesUrl) : window.open(sel.notesUrl, '_blank', 'noopener')) : this.flash(live ? `No OneNote section matched “${sel.caseName}”.` : 'Sample data — connect Microsoft 365 to open OneNote.') },
+      noPane: !sel,
+      toast: this.state.toast,
+      caseSel: [{ id: 'all', label: 'All cases' }].concat(D.CASES.map((c) => ({ id: c.id, label: c.name }))),
+      caseId, onCase: (e) => this.setState({ caseId: e.target.value, sel: null }),
+      dotColor: this.state.offline ? 'var(--orange)' : 'oklch(0.62 0.14 150)',
+      resultLine: needle ? (list.length + ' result' + (list.length === 1 ? '' : 's') + ' for “' + q.trim() + '”') : '',
+      isLive: live, notLive: !live, isSample: !live && st !== 'loading' && st !== 'signing',
+      busy: st === 'loading' || st === 'signing', busyLabel: st === 'signing' ? 'Waiting for Microsoft sign-in…' : 'Loading your Microsoft 365 data…',
+      meName: live ? this.state.data.me.name : '', loadedLabel: live ? ((this.state.offline ? 'Offline · ' : '') + 'updated ' + this.state.data.loadedAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '',
+      error: this.state.error, clearError: () => this.setState({ error: null }),
+      hasWarnings: this.state.warnings.length > 0, warningText: this.state.warnings.join(' · '),
+      isQueueView: this.state.view === 'queue', isSetup: this.state.view === 'setup',
+      openSetup: () => this.setState({ view: 'setup' }), closeSetup: () => this.setState({ view: 'queue', error: null }),
+      connect: () => this.connect(), refresh: () => this.refresh(), disconnect: () => this.disconnect(),
+      clientId: this.state.clientId, onClientId: (e) => { localStorage.setItem('casedesk.clientId', e.target.value.trim()); this.setState({ clientId: e.target.value }); },
+      kw: this.state.kw, onKw: (e) => { localStorage.setItem('casedesk.keywords', e.target.value); this.setState({ kw: e.target.value }); },
+      redirect: this.state.redirect || 'https://cherrycoke23.github.io/casedesk/auth.html',
+      copyRedirect: () => { navigator.clipboard && navigator.clipboard.writeText(this.state.redirect || 'https://cherrycoke23.github.io/casedesk/auth.html'); this.flash('Redirect URI copied'); },
+      secureOk: this.state.secure, secureBad: !this.state.secure,
+      signInLabel: live ? 'Sign in again' : 'Sign in with Microsoft',
+      scopes: ['User.Read', 'Mail.Read', 'Calendars.Read', 'Tasks.Read', 'Notes.Read', 'offline_access'],
+      digest: this.state.digest,
+      openDigest: () => this.setState({ digest: true }),
+      closeDigest: () => this.setState({ digest: false }),
+      printDigest: () => window.print(),
+      digestEvents: D.EVENTS.map((e) => { const c = D.CASES.find((x) => x.id === e.c); return { span: `${fmtTime(e.start)} – ${fmtTime(e.end)}`, title: e.title, caseName: c ? c.name : 'Internal', caseNo: c ? c.no : '—', where: e.loc }; }),
+    };
+  }
+}
+</script>
+</body>
+</html>
